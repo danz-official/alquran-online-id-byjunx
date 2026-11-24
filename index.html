@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Noor Al-Qur'an — Digital Qur'an, Jadwal Sholat & Doa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #030d0a;
+      --bg-card: rgba(11, 32, 25, 0.84);
+      --bg-card-hover: rgba(17, 46, 36, 0.96);
+      --bg-input: rgba(5, 18, 14, 0.92);
+      --text-primary: #f2f8f5;
+      --text-secondary: #98b9ad;
+      --text-muted: #65887b;
+      --gold: #dfb63d;
+      --gold-light: #fae392;
+      --gold-dim: rgba(223, 182, 61, 0.14);
+      --border-color: rgba(223, 182, 61, 0.22);
+      --shadow-card: 0 14px 32px -10px rgba(0, 0, 0, 0.72);
+      --nav-bg: rgba(5, 17, 13, 0.92);
+      --pattern-opacity: 0.05;
+      --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #edf5f0;
+      --bg-card: rgba(255, 255, 255, 0.92);
+      --bg-card-hover: #ffffff;
+      --bg-input: #f7fbf9;
+      --text-primary: #0b261d;
+      --text-secondary: #34594c;
+      --text-muted: #5d8274;
+      --gold: #b58918;
+      --gold-light: #8f6908;
+      --gold-dim: rgba(181, 137, 24, 0.14);
+      --border-color: rgba(16, 85, 62, 0.18);
+      --shadow-card: 0 10px 24px -8px rgba(11, 38, 29, 0.11);
+      --nav-bg: rgba(255, 255, 255, 0.94);
+      --pattern-opacity: 0.06;
+      --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 148px;
+      overflow-x: hidden;
+      transition: background-color 0.4s var(--ease-smooth), color 0.4s var(--ease-smooth);
+    }
+
+    .islamic-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--pattern-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23d4af37' stroke-width='1'%3E%3Cpolygon points='30,2 38,22 58,30 38,38 30,58 22,38 2,30 22,22'/%3E%3Crect x='14' y='14' width='32' height='32' transform='rotate(45 30 30)'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -110px;
+      right: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(223, 182, 61, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-bottom {
+      position: fixed;
+      bottom: 60px;
+      left: -90px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.11) 0%, transparent 72%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 18px 16px;
+    }
+
+    .page-view {
+      display: none;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    .page-view.active {
+      display: block;
+      animation: smoothEnter 0.42s var(--ease-smooth) forwards;
+    }
+
+    @keyframes smoothEnter {
+      from { opacity: 0; transform: translateY(16px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .greeting {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2px;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .icon-btn {
+      position: relative;
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 13px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-smooth), border-color 0.25s ease, background-color 0.25s ease;
+    }
+    .icon-btn:hover { border-color: var(--gold); background: var(--bg-card-hover); }
+    .icon-btn:active { transform: scale(0.94); }
+
+    .badge-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f3d982, #c49823);
+      color: #040f0c;
+      font-size: 10px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.24s var(--ease-smooth), border-color 0.25s ease, background-color 0.35s ease, box-shadow 0.25s ease;
+    }
+
+    .hero-card {
+      padding: 18px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(16, 54, 41, 0.95), rgba(7, 23, 18, 0.98));
+      border: 1px solid rgba(223, 182, 61, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 16px 34px -12px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 235, 165, 0.18);
+    }
+
+    .hero-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #f3d982;
+      margin-bottom: 5px;
+    }
+
+    .hero-title { font-size: 19px; font-weight: 800; color: #ffffff; margin-bottom: 3px; }
+    .hero-sub { font-size: 12px; color: #a7cbbd; }
+
+    .btn-gold {
+      padding: 10.5px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 240, 185, 0.35);
+      background: linear-gradient(135deg, #ebd070, #c5971f);
+      color: #05140f;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 8px 20px -6px rgba(212, 175, 55, 0.45);
+      transition: transform 0.18s var(--ease-smooth), filter 0.2s ease;
+    }
+    .btn-gold:hover { filter: brightness(1.06); }
+    .btn-gold:active { transform: scale(0.95); }
+
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .chips-row::-webkit-scrollbar { display: none; }
+
+    .chip {
+      padding: 8px 15px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.22s var(--ease-smooth);
+    }
+    .chip:active { transform: scale(0.95); }
+    .chip.active {
+      background: linear-gradient(135deg, #ebd070, #c5971f);
+      color: #040f0c;
+      border-color: transparent;
+      font-weight: 800;
+      box-shadow: 0 6px 16px -4px rgba(212, 175, 55, 0.4);
+    }
+
+    .search-box { position: relative; margin-bottom: 16px; }
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 16px 13px 42px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(223, 182, 61, 0.14);
+    }
+
+    .surah-list { display: flex; flex-direction: column; gap: 10px; }
+    .surah-item {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .surah-item:hover {
+      border-color: rgba(223, 182, 61, 0.45);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+    .surah-item:active { transform: scale(0.985); }
+    .surah-left { display: flex; align-items: center; gap: 14px; }
+    .surah-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border-color);
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .surah-name { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .surah-meta { font-size: 11.5px; color: var(--text-secondary); }
+    .surah-arabic { font-family: 'Amiri', serif; font-size: 22px; color: var(--gold); font-weight: 700; }
+
+    .sticky-bar {
+      position: sticky;
+      top: 10px;
+      z-index: 30;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .detail-title-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .detail-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .mini-btn {
+      padding: 7px 11px;
+      border-radius: 11px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: transform 0.18s var(--ease-smooth), border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .mini-btn:hover { border-color: var(--gold); background: var(--bg-card-hover); }
+    .mini-btn:active { transform: scale(0.94); }
+
+    .settings-drawer {
+      position: relative;
+      z-index: 45;
+      padding: 15px 16px;
+      margin-bottom: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 13px;
+      font-size: 12.5px;
+      overflow: visible;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: var(--bg-card-hover);
+    }
+    .settings-drawer.open {
+      display: flex;
+      animation: drawerPop 0.28s var(--ease-smooth) forwards;
+    }
+    @keyframes drawerPop {
+      from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* Custom Dropdown Qari */
+    .custom-select-wrap {
+      position: relative;
+      z-index: 60;
+      min-width: 195px;
+    }
+    .custom-select-wrap.open { z-index: 90; }
+    .custom-select-trigger {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(18, 52, 40, 0.98), rgba(8, 25, 19, 1));
+      border: 1px solid rgba(223, 182, 61, 0.35);
+      color: var(--gold-light);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+    [data-theme="light"] .custom-select-trigger {
+      background: #ffffff;
+      color: var(--gold);
+    }
+    .custom-select-trigger:hover { border-color: var(--gold); }
+    .custom-select-chevron { transition: transform 0.24s var(--ease-smooth); }
+    .custom-select-wrap.open .custom-select-chevron { transform: rotate(180deg); }
+
+    .custom-select-menu {
+      position: absolute;
+      top: calc(100% + 7px);
+      right: 0;
+      width: 245px;
+      padding: 6px;
+      border-radius: 16px;
+      background: #081a14;
+      border: 1px solid rgba(223, 182, 61, 0.45);
+      box-shadow: 0 22px 44px rgba(0, 0, 0, 0.88);
+      z-index: 120;
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+    }
+    [data-theme="light"] .custom-select-menu {
+      background: #ffffff;
+      box-shadow: 0 18px 36px rgba(11, 38, 29, 0.2);
+    }
+    .custom-select-wrap.open .custom-select-menu {
+      display: flex;
+      animation: drawerPop 0.22s var(--ease-smooth) forwards;
+    }
+    .custom-option {
+      padding: 9px 11px;
+      border-radius: 11px;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+    .custom-option:hover { background: var(--gold-dim); color: var(--gold-light); }
+    .custom-option.active {
+      background: linear-gradient(135deg, rgba(223, 182, 61, 0.22), rgba(223, 182, 61, 0.08));
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .audio-banner {
+      position: relative;
+      z-index: 10;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .play-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 240, 185, 0.35);
+      background: linear-gradient(135deg, #ebd070, #c5971f);
+      color: #040f0c;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px -6px rgba(212, 175, 55, 0.45);
+      transition: transform 0.18s var(--ease-smooth);
+    }
+    .play-circle:active { transform: scale(0.92); }
+
+    .bismillah-box {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 14px 0 18px;
+      font-family: 'Amiri', serif;
+      font-size: 30px;
+      color: var(--gold);
+    }
+
+    .ayat-list { position: relative; z-index: 5; display: flex; flex-direction: column; gap: 14px; }
+    .ayat-card { padding: 16px; }
+    .ayat-card.playing {
+      border-color: var(--gold);
+      background: linear-gradient(145deg, rgba(223, 182, 61, 0.14), var(--bg-card));
+      box-shadow: 0 0 0 1px rgba(223, 182, 61, 0.4), var(--shadow-card);
+    }
+
+    .ayat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .ayat-badge {
+      padding: 4px 11px;
+      border-radius: 9px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(223, 182, 61, 0.25);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .ayat-actions { display: flex; gap: 6px; }
+
+    .arabic-text {
+      font-family: 'Amiri', serif;
+      font-size: 28px;
+      line-height: 2.3;
+      text-align: right;
+      direction: rtl;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .latin-text { font-size: 12.5px; line-height: 1.65; color: var(--gold); font-weight: 500; margin-bottom: 8px; }
+    .trans-text { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+    .hidden { display: none !important; }
+
+    .nav-surah-footer { display: flex; gap: 10px; margin-top: 18px; }
+    .nav-surah-footer button {
+      flex: 1;
+      padding: 13px;
+      border-radius: 15px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+    }
+    .nav-surah-footer button:hover:not(:disabled) { border-color: var(--gold); background: var(--bg-card-hover); }
+    .nav-surah-footer button:active:not(:disabled) { transform: scale(0.97); }
+    .nav-surah-footer button:disabled { opacity: 0.4; }
+
+    /* Jadwal Sholat */
+    .prayer-hero { padding: 18px; margin-bottom: 16px; }
+    .countdown-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .countdown-time { font-size: 26px; font-weight: 800; color: var(--gold); margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .prayer-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      padding-left: 2px;
+    }
+    .prayer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .prayer-card {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .prayer-card.next-active {
+      border-color: var(--gold);
+      background: linear-gradient(145deg, rgba(223, 182, 61, 0.16), var(--bg-card));
+    }
+    .prayer-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(223, 182, 61, 0.28);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .prayer-info-stack { display: flex; flex-direction: column; gap: 3px; }
+    .prayer-name { font-size: 11px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: var(--text-secondary); }
+    .prayer-time { font-size: 23px; font-weight: 800; letter-spacing: -0.5px; color: var(--gold-light); font-variant-numeric: tabular-nums; }
+    [data-theme="light"] .prayer-time { color: var(--gold); }
+
+    /* Tasbih */
+    .tasbih-box { padding: 22px 16px; text-align: center; margin-bottom: 16px; }
+    .tasbih-circle {
+      width: 178px;
+      height: 178px;
+      margin: 18px auto;
+      border-radius: 50%;
+      border: 2.5px solid var(--gold);
+      background: radial-gradient(circle at 30% 25%, rgba(250, 227, 146, 0.2), var(--bg-input));
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45), inset 0 0 24px rgba(223, 182, 61, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.16s var(--ease-smooth);
+    }
+    .tasbih-circle:active { transform: scale(0.92); }
+    .tasbih-number { font-size: 46px; font-weight: 800; color: var(--text-primary); line-height: 1; font-variant-numeric: tabular-nums; }
+    .doa-card { padding: 16px; margin-bottom: 10px; }
+
+    .common-input {
+      width: 100%;
+      padding: 11.5px 14px;
+      border-radius: 13px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+    .common-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(223, 182, 61, 0.14);
+    }
+
+    /* Profil Developer & Tajwid */
+    .profile-card { padding: 18px; margin-bottom: 14px; }
+    .profile-top { display: flex; align-items: center; gap: 14px; }
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(223, 182, 61, 0.24), rgba(16, 54, 41, 0.9));
+      border: 1.5px solid var(--gold);
+      color: var(--gold-light);
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+    .dev-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 7px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ebd070, #c5971f);
+      color: #040f0c;
+      font-size: 10px;
+      font-weight: 800;
+      vertical-align: middle;
+    }
+
+    .profile-link-card {
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .profile-link-card.featured {
+      border-color: rgba(223, 182, 61, 0.42);
+      background: linear-gradient(135deg, rgba(16, 54, 41, 0.92), rgba(11, 32, 25, 0.92));
+    }
+    .profile-link-card:hover { border-color: rgba(223, 182, 61, 0.55); background: var(--bg-card-hover); transform: translateY(-1.5px); }
+    .profile-link-card:active { transform: scale(0.985); }
+
+    .link-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(223, 182, 61, 0.32);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tajwid-list { display: flex; flex-direction: column; gap: 12px; }
+    .tajwid-card { padding: 16px; }
+    .tajwid-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .tajwid-title { font-size: 15px; font-weight: 800; color: var(--gold); }
+    .tajwid-cat-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(223, 182, 61, 0.25);
+      color: var(--gold-light);
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    [data-theme="light"] .tajwid-cat-badge { color: var(--gold); }
+    .tajwid-desc { font-size: 12.5px; line-height: 1.65; color: var(--text-secondary); margin-bottom: 10px; }
+    .tajwid-letters-box {
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      margin-bottom: 10px;
+    }
+    .tajwid-letters-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .tajwid-letters-val { font-family: 'Amiri', serif; font-size: 22px; color: var(--gold); text-align: right; direction: rtl; }
+    .tajwid-example-box {
+      padding: 12px;
+      border-radius: 13px;
+      background: rgba(223, 182, 61, 0.06);
+      border: 1px dashed rgba(223, 182, 61, 0.3);
+    }
+    .tajwid-example-arab { font-family: 'Amiri', serif; font-size: 24px; color: var(--text-primary); text-align: right; direction: rtl; margin-bottom: 4px; }
+    .tajwid-example-note { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* Mini Audio Bar & Bottom Nav */
+    .mini-player-bar {
+      position: fixed;
+      bottom: 82px;
+      left: 12px;
+      right: 12px;
+      max-width: 576px;
+      margin: 0 auto;
+      z-index: 9998;
+      background: linear-gradient(135deg, rgba(16, 54, 41, 0.96), rgba(7, 25, 19, 0.98));
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--gold);
+      border-radius: 17px;
+      padding: 10px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.78);
+    }
+    .mini-player-bar.visible { display: flex; animation: drawerPop 0.25s var(--ease-smooth); }
+    .mini-player-info { overflow: hidden; flex: 1; }
+    .mini-player-title { font-size: 12.5px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-player-sub { font-size: 10.5px; color: var(--gold-light); }
+    .btn-stop-audio {
+      padding: 7px 12px;
+      border-radius: 11px;
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      background: rgba(220, 38, 38, 0.22);
+      color: #fca5a5;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: var(--nav-bg);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border-color);
+      padding: 10px 12px 14px;
+    }
+    .bottom-nav-inner { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-around; }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 10.5px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 11px;
+      border-radius: 13px;
+      transition: all 0.2s var(--ease-smooth);
+    }
+    .nav-btn:active { transform: scale(0.92); }
+    .nav-btn.active { color: var(--gold); background: var(--gold-dim); font-weight: 700; }
+
+    /* Modals & Toast */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(7px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-backdrop.open .modal-box { animation: modalScaleIn 0.26s var(--ease-smooth) forwards; }
+    @keyframes modalScaleIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 18px;
+      background: linear-gradient(160deg, rgba(14, 39, 30, 0.98), rgba(6, 20, 15, 0.99));
+      border: 1px solid rgba(223, 182, 61, 0.35);
+    }
+    [data-theme="light"] .modal-box { background: #ffffff; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; color: var(--gold); font-weight: 800; font-size: 15px; }
+    .region-section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gold); padding: 8px 4px 4px; }
+    .region-item { padding: 10px 12px; cursor: pointer; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+    .region-item:hover { border-color: var(--gold); }
+    .loader { text-align: center; padding: 36px 0; color: var(--text-secondary); font-size: 13px; }
+    .spinner { width: 30px; height: 30px; border: 3px solid var(--gold-dim); border-top-color: var(--gold); border-radius: 50%; margin: 0 auto 10px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      z-index: 10001;
+      background: linear-gradient(135deg, #ebd070, #c5971f);
+      color: #040f0c;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+      transition: transform 0.32s var(--ease-smooth);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="islamic-bg"></div>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-bottom"></div>
+  <div id="toast" class="toast">Tersimpan</div>
+
+  <div class="container">
+    <header id="main-header" class="top-header">
+      <div>
+        <div class="greeting">Assalamu'alaikum</div>
+        <h1 class="brand-title">Noor Al-Qur'an</h1>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openBookmarksModal()" title="Ayat Favorit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          <span id="bookmark-badge" class="badge-count">0</span>
+        </button>
+        <button class="icon-btn" onclick="toggleTheme()" id="theme-toggle-btn">
+          <svg id="theme-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <span id="theme-label">Terang</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- VIEW 1: AL-QUR'AN -->
+    <main id="tab-quran" class="page-view active">
+      <div class="card hero-card">
+        <div>
+          <div class="hero-label"><span>TERAKHIR DIBACA</span></div>
+          <div id="last-read-title" class="hero-title">Al-Fatihah</div>
+          <div id="last-read-subtitle" class="hero-sub">Ayat 1 • Lanjutkan tilawah</div>
+        </div>
+        <button class="btn-gold" onclick="continueLastRead()"><span>Lanjut</span></button>
+      </div>
+
+      <div class="chips-row">
+        <button class="chip active" id="cat-all" onclick="filterSurahCategory('all')">Semua (114)</button>
+        <button class="chip" id="cat-makkiyah" onclick="filterSurahCategory('makkiyah')">Makkiyah</button>
+        <button class="chip" id="cat-madaniyah" onclick="filterSurahCategory('madaniyah')">Madaniyah</button>
+        <button class="chip" id="cat-juz30" onclick="filterSurahCategory('juz30')">Juz Amma (Juz 30)</button>
+      </div>
+
+      <div class="search-box">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search-surah" class="search-input" oninput="renderSurahList()" placeholder="Cari surah, arti, atau nomor (contoh: Yasin, 18)..." />
+      </div>
+
+      <div id="surah-loading" class="loader"><div class="spinner"></div><div>Mengambil 114 Surah...</div></div>
+      <div id="surah-list" class="surah-list"></div>
+    </main>
+
+    <!-- VIEW DETAIL SURAH -->
+    <section id="view-surah-detail" class="page-view">
+      <div class="card sticky-bar">
+        <div class="detail-title-wrap">
+          <button class="mini-btn" onclick="closeSurahDetail()">← Kembali</button>
+          <div style="min-width:0;">
+            <div id="detail-surah-name" style="font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Al-Fatihah</div>
+            <div id="detail-surah-meta" style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Pembukaan • 7 Ayat</div>
+          </div>
+        </div>
+        <div class="detail-controls">
+          <button class="mini-btn" onclick="changeFontSize(-2)">A-</button>
+          <button class="mini-btn" onclick="changeFontSize(2)">A+</button>
+          <button class="mini-btn" onclick="toggleReaderSettings()">⚙</button>
+        </div>
+      </div>
+
+      <div id="reader-settings-panel" class="card settings-drawer">
+        <div class="setting-row">
+          <span>Tampilkan Transliterasi Latin</span>
+          <input type="checkbox" id="toggle-latin" checked onchange="applyReaderVisibility()" style="accent-color:var(--gold);width:18px;height:18px;cursor:pointer;">
+        </div>
+        <div class="setting-row">
+          <span>Tampilkan Terjemahan Indonesia</span>
+          <input type="checkbox" id="toggle-translation" checked onchange="applyReaderVisibility()" style="accent-color:var(--gold);width:18px;height:18px;cursor:pointer;">
+        </div>
+        <div class="setting-row">
+          <span>Pilih Qari Murottal</span>
+          <div class="custom-select-wrap" id="qari-custom-select">
+            <button type="button" class="custom-select-trigger" onclick="toggleQariMenu(event)">
+              <span id="qari-selected-label">Mishary Rashid Alafasy</span>
+              <svg class="custom-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="custom-select-menu" id="qari-options-menu">
+              <button type="button" class="custom-option active" data-val="05" onclick="selectQariOption('05', 'Mishary Rashid Alafasy', this)">
+                <span>Mishary Rashid Alafasy</span><span>✓</span>
+              </button>
+              <button type="button" class="custom-option" data-val="01" onclick="selectQariOption('01', 'Abdullah Al-Juhany', this)">
+                <span>Abdullah Al-Juhany</span><span></span>
+              </button>
+              <button type="button" class="custom-option" data-val="02" onclick="selectQariOption('02', 'Abdul Muhsin Al-Qasim', this)">
+                <span>Abdul Muhsin Al-Qasim</span><span></span>
+              </button>
+              <button type="button" class="custom-option" data-val="03" onclick="selectQariOption('03', 'Abdurrahman As-Sudais', this)">
+                <span>Abdurrahman As-Sudais</span><span></span>
+              </button>
+              <button type="button" class="custom-option" data-val="04" onclick="selectQariOption('04', 'Ibrahim Al-Dossari', this)">
+                <span>Ibrahim Al-Dossari</span><span></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card audio-banner">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <button class="play-circle" onclick="togglePlayFullSurah()" id="btn-play-full">▶</button>
+          <div style="min-width:0;">
+            <div style="font-size:12.5px;font-weight:800;color:var(--gold);">Audio Bacaan</div>
+            <div id="audio-status-text" style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Siap diputar • Qari Mishary Alafasy</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="mini-btn" onclick="stopAllAudio(true)" style="color:#fca5a5;">Stop</button>
+          <button class="mini-btn" onclick="showSurahInfo()">Info</button>
+        </div>
+      </div>
+
+      <div id="bismillah-banner" class="bismillah-box">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div id="ayat-loading" class="loader hidden"><div class="spinner"></div><div>Memuat ayat-ayat suci...</div></div>
+      <div id="ayat-list" class="ayat-list"></div>
+
+      <div class="nav-surah-footer">
+        <button id="btn-prev-surah" onclick="navigateSurah(-1)">← Surah Sebelumnya</button>
+        <button id="btn-next-surah" onclick="navigateSurah(1)">Surah Selanjutnya →</button>
+      </div>
+    </section>
+
+    <!-- VIEW 2: JADWAL SHOLAT -->
+    <section id="tab-sholat" class="page-view">
+      <div class="card prayer-hero">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div>
+            <div class="greeting">Pengingat Ibadah</div>
+            <h2 id="prayer-city-name" style="font-size:19px;font-weight:800;margin:2px 0;">KOTA JAKARTA</h2>
+            <p id="prayer-date-str" style="font-size:12px;color:var(--text-secondary);">Memuat jadwal...</p>
+          </div>
+          <button class="mini-btn" onclick="openCitySelector()" style="color:var(--gold);">Ganti Wilayah</button>
+        </div>
+
+        <div class="countdown-box">
+          <div>
+            <div style="font-size:11.5px;color:var(--text-secondary);">Menuju Waktu <strong id="next-prayer-name" style="color:var(--gold);">--</strong></div>
+            <div id="prayer-countdown" class="countdown-time">--:--:--</div>
+          </div>
+          <div class="prayer-icon-box" style="width:44px;height:44px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="prayer-section-label">JADWAL SHOLAT HARIAN • INDONESIA</div>
+      <div id="prayer-times-grid" class="prayer-grid"></div>
+
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font-size:13.5px;font-weight:700;">Suara Pengingat Adzan</div>
+            <div style="font-size:11.5px;color:var(--text-secondary);">Tetap berbunyi meski layar mati / keluar</div>
+          </div>
+          <input type="checkbox" id="toggle-adzan" checked style="accent-color:var(--gold);width:18px;height:18px;cursor:pointer;">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-gold" style="flex:1;justify-content:center;" onclick="requestNotificationPermission()">Aktifkan Notifikasi</button>
+          <button class="mini-btn" onclick="testAdzanSound()" id="btn-test-adzan" style="padding:10px 14px;color:var(--gold);">▶ Tes Adzan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TASBIH & DOA -->
+    <section id="tab-tasbih" class="page-view">
+      <div class="card tasbih-box">
+        <div class="greeting" style="margin-bottom:10px;">Tasbih Digital</div>
+        <select id="dzikir-preset" class="common-input" style="margin-bottom:0;text-align:center;color:var(--gold);font-weight:700;" onchange="resetTasbih()">
+          <option value="33">Subhanallah (سُبْحَانَ اللَّهِ) — 33x</option>
+          <option value="33">Alhamdulillah (الْحَمْدُ لِلَّهِ) — 33x</option>
+          <option value="33">Allahu Akbar (اللَّهُ أَكْبَرُ) — 33x</option>
+          <option value="100">Astaghfirullahal 'Adzim — 100x</option>
+          <option value="100">Sholawat Nabi — 100x</option>
+        </select>
+        <div class="tasbih-circle" onclick="incrementTasbih()">
+          <div id="tasbih-count" class="tasbih-number">0</div>
+          <div id="tasbih-target" style="font-size:12px;color:var(--gold);margin-top:6px;font-weight:700;">Target: 33</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Ketuk lingkaran</div>
+        </div>
+        <button class="mini-btn" onclick="resetTasbih()" style="padding:9px 16px;">↺ Reset Hitungan</button>
+      </div>
+      <div class="greeting" style="margin:16px 4px 10px;">Doa Harian Pilihan</div>
+      <div id="doa-list"></div>
+    </section>
+
+    <!-- VIEW 4: PROFIL DEVELOPER -->
+    <section id="tab-profile" class="page-view">
+      <div class="card profile-card">
+        <div class="profile-top">
+          <div class="profile-avatar">JX</div>
+          <div>
+            <div class="greeting" style="margin-bottom:2px;">Developer Aplikasi</div>
+            <h2 style="font-size:19px;font-weight:800;">
+              JunX <span class="dev-badge">DEV</span>
+            </h2>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Noor Al-Qur'an • Digital Qur'an & Pengingat Ibadah</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card profile-link-card featured" onclick="openTajwidPage()">
+        <div>
+          <div style="font-size:14.5px;font-weight:800;color:var(--gold);">Belajar Ilmu Tajwid</div>
+          <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">Panduan hukum bacaan, huruf & contoh ayat</div>
+        </div>
+        <span class="link-pill">Belajar →</span>
+      </div>
+
+      <div class="card profile-link-card" onclick="openOfficialWhatsAppChannel()">
+        <div>
+          <div style="font-size:14.5px;font-weight:800;color:var(--gold);">Saluran Resmi</div>
+          <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">Update & info resmi WhatsApp Channel JunX</div>
+        </div>
+        <span class="link-pill">Buka WA →</span>
+      </div>
+
+      <div class="card profile-link-card" onclick="openTikTokProfile()">
+        <div>
+          <div style="font-size:14.5px;font-weight:800;color:var(--gold);">TikTok Dev</div>
+          <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">TikTok JunX</div>
+        </div>
+        <span class="link-pill">Buka TikTok →</span>
+      </div>
+    </section>
+
+    <!-- VIEW HALAMAN BELAJAR ILMU TAJWID -->
+    <section id="view-tajwid" class="page-view">
+      <div class="card sticky-bar">
+        <div class="detail-title-wrap">
+          <button class="mini-btn" onclick="closeTajwidPage()">← Profil</button>
+          <div style="min-width:0;">
+            <div style="font-weight:800;font-size:15px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Belajar Ilmu Tajwid</div>
+            <div style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Panduan Dasar Hukum Bacaan Al-Qur'an</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chips-row">
+        <button class="chip active" id="tajwid-cat-all" onclick="filterTajwidCategory('all')">Semua</button>
+        <button class="chip" id="tajwid-cat-nun" onclick="filterTajwidCategory('nun')">Nun Mati & Tanwin</button>
+        <button class="chip" id="tajwid-cat-mim" onclick="filterTajwidCategory('mim')">Mim Mati</button>
+        <button class="chip" id="tajwid-cat-mad" onclick="filterTajwidCategory('mad')">Hukum Mad</button>
+        <button class="chip" id="tajwid-cat-qalqalah" onclick="filterTajwidCategory('qalqalah')">Qalqalah</button>
+      </div>
+
+      <div id="tajwid-list" class="tajwid-list"></div>
+    </section>
+  </div>
+
+  <!-- FLOATING AUDIO BAR -->
+  <div id="mini-player-bar" class="mini-player-bar">
+    <button class="mini-btn" onclick="togglePlayPauseCurrent()" id="mini-player-toggle" style="color:var(--gold);padding:8px 11px;">⏸</button>
+    <div class="mini-player-info">
+      <div id="mini-player-title" class="mini-player-title">Murottal Al-Qur'an</div>
+      <div id="mini-player-sub" class="mini-player-sub">Audio berjalan di latar belakang</div>
+    </div>
+    <button class="btn-stop-audio" onclick="stopAllAudio(true)">⏹ Matikan Suara</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="nav-btn active" id="nav-quran" onclick="switchTab('quran')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <span>Al-Qur'an</span>
+      </button>
+      <button class="nav-btn" id="nav-sholat" onclick="switchTab('sholat')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Jadwal Sholat</span>
+      </button>
+      <button class="nav-btn" id="nav-tasbih" onclick="switchTab('tasbih')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="4"/></svg>
+        <span>Tasbih & Doa</span>
+      </button>
+      <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MODALS -->
+  <div id="city-modal" class="modal-backdrop">
+    <div class="card modal-box">
+      <div class="modal-head">
+        <span>Wilayah Indonesia (Provinsi / Kota)</span>
+        <button class="mini-btn" onclick="closeCitySelector()">✕</button>
+      </div>
+      <input type="text" id="search-city-input" class="search-input" style="padding-left:14px;margin-bottom:10px;" oninput="handleRegionSearch()" placeholder="Ketik provinsi atau kota...">
+      <div id="city-results" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+
+  <div id="bookmarks-modal" class="modal-backdrop">
+    <div class="card modal-box">
+      <div class="modal-head">
+        <span>Ayat Tersimpan</span>
+        <button class="mini-btn" onclick="closeBookmarksModal()">✕</button>
+      </div>
+      <div id="bookmarks-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>
+
+  <div id="info-modal" class="modal-backdrop">
+    <div class="card modal-box">
+      <div class="modal-head">
+        <span id="info-modal-title">Tentang Surah</span>
+        <button class="mini-btn" onclick="document.getElementById('info-modal').classList.remove('open')">✕</button>
+      </div>
+      <div id="info-modal-body" style="max-height:280px;overflow-y:auto;font-size:13px;line-height:1.65;color:var(--text-secondary);"></div>
+    </div>
+  </div>
+
+  <audio id="quran-audio" preload="auto" playsinline></audio>
+  <audio id="adzan-audio" src="https://www.islamcan.com/audio/adhan/azan1.mp3" preload="auto" playsinline></audio>
+  <script>
+    // ==================== KONFIGURASI LINK DEVELOPER ====================
+    const OFFICIAL_WA_CHANNEL_URL = "https://whatsapp.com/channel/0029VbBsELA6GcG514BVVi0L";
+    const OFFICIAL_TIKTOK_URL = "https://www.tiktok.com/@junxsorenware";
+
+    // ==================== MATERI BELAJAR ILMU TAJWID ====================
+    const TAJWID_LESSONS = [
+      {
+        id: "idzhar-halqi",
+        cat: "nun",
+        catLabel: "Nun Mati & Tanwin",
+        title: "Idzhar Halqi (إظهار حلقي)",
+        desc: "Dibaca jelas dan terang tanpa dengung ketika nun mati (نْ) atau tanwin (ـًـ ، ـٍـ ، ـٌـ) bertemu salah satu dari enam huruf tenggorokan (halqi).",
+        letters: "ء ، هـ ، ع ، ح ، غ ، خ",
+        exampleArab: "مِنْ عِلْمٍ • عَلِيمٌ حَكِيمٌ",
+        exampleNote: "Nun mati bertemu ع pada مِنْ عِلْمٍ dibaca jelas 'min 'ilmin' tanpa dengung."
+      },
+      {
+        id: "idgham-bighunnah",
+        cat: "nun",
+        catLabel: "Nun Mati & Tanwin",
+        title: "Idgham Bighunnah (إدغام بغنة)",
+        desc: "Dibaca lebur masuk ke huruf berikutnya disertai dengung (ghunnah) sekitar 2 harakat ketika nun mati atau tanwin bertemu empat huruf ini dalam dua kata.",
+        letters: "ي ، ن ، م ، و",
+        exampleArab: "مَنْ يَقُولُ • خَيْرًا يَرَ",
+        exampleNote: "Nun mati bertemu ي pada مَنْ يَقُولُ dilebur dan didengungkan."
+      },
+      {
+        id: "idgham-bilaghunnah",
+        cat: "nun",
+        catLabel: "Nun Mati & Tanwin",
+        title: "Idgham Bilaghunnah (إدغام بلا غنة)",
+        desc: "Dibaca lebur masuk ke huruf lam atau ra tanpa dengung ketika nun mati atau tanwin bertemu salah satu dari dua huruf tersebut.",
+        letters: "ل ، ر",
+        exampleArab: "مِنْ رَبِّهِمْ • هُدًى لِلْمُتَّقِينَ",
+        exampleNote: "Nun mati bertemu ر pada مِنْ رَبِّهِمْ dibaca 'mir rabbihim' tanpa dengung."
+      },
+      {
+        id: "iqlab",
+        cat: "nun",
+        catLabel: "Nun Mati & Tanwin",
+        title: "Iqlab (إقلاب)",
+        desc: "Mengubah suara nun mati atau tanwin menjadi bunyi huruf mim (م) yang samar disertai dengung 2 harakat ketika bertemu huruf ba (ب).",
+        letters: "ب",
+        exampleArab: "مِنْ بَعْدِ • سَمِيعٌ بَصِيرٌ",
+        exampleNote: "Nun mati bertemu ب pada مِنْ بَعْدِ dibaca 'mim ba'di'."
+      },
+      {
+        id: "ikhfa-haqiqi",
+        cat: "nun",
+        catLabel: "Nun Mati & Tanwin",
+        title: "Ikhfa Haqiqi (إخفاء حقيقي)",
+        desc: "Dibaca samar antara jelas dan lebur disertai dengung ketika nun mati atau tanwin bertemu 15 huruf ikhfa selain huruf idzhar, idgham, dan iqlab.",
+        letters: "ت ، ث ، ج ، د ، ذ ، ز ، س ، ش ، ص ، ض ، ط ، ظ ، ف ، ق ، ك",
+        exampleArab: "مِنْ قَبْلِ • كُنْتُمْ",
+        exampleNote: "Nun mati bertemu ق dan ت dibaca samar dengan dengung."
+      },
+      {
+        id: "mim-sukun",
+        cat: "mim",
+        catLabel: "Mim Mati",
+        title: "Hukum Mim Mati (مْ)",
+        desc: "Terbagi menjadi tiga: Ikhfa Syafawi (bertemu ب dengan dengung), Idgham Mitslain/Mimi (bertemu م dengan dengung), dan Idzhar Syafawi (bertemu huruf selain م dan ب dengan jelas).",
+        letters: "ب • م • huruf lainnya",
+        exampleArab: "تَرْمِيهِمْ بِحِجَارَةٍ • لَكُمْ مَا كَسَبْتُمْ",
+        exampleNote: "Mim mati bertemu ب dibaca ikhfa syafawi; bertemu م dibaca idgham mimi."
+      },
+      {
+        id: "mad-thabii",
+        cat: "mad",
+        catLabel: "Hukum Mad",
+        title: "Mad Thabi'i / Mad Ashli (مد طبيعي)",
+        desc: "Memanjangkan suara bacaan sebanyak 2 harakat (1 alif): alif sukun setelah fathah, ya sukun setelah kasrah, atau wawu sukun setelah dhammah.",
+        letters: "ا (setelah ـَ) • يْ (setelah ـِ) • وْ (setelah ـُ)",
+        exampleArab: "قَالَ • يَقُولُ • قِيلَ",
+        exampleNote: "Huruf mad dibaca panjang tepat 2 harakat, tidak terlalu pendek dan tidak berlebih."
+      },
+      {
+        id: "qalqalah",
+        cat: "qalqalah",
+        catLabel: "Qalqalah",
+        title: "Qalqalah (قلقلة)",
+        desc: "Pantulan suara pada huruf qalqalah yang berharakat sukun/waqaf. Terdiri dari Qalqalah Shughra (sukun asli di tengah kata) dan Qalqalah Kubra (sukun karena waqaf di akhir kata).",
+        letters: "ق ، ط ، ب ، ج ، د",
+        exampleArab: "يَدْعُو • الْفَلَقِ • أَحَدٌ",
+        exampleNote: "Pantulkan huruf ق / د dengan jelas tanpa menambahkan vokal yang menyimpang."
+      }
+    ];
+
+    // ==================== IKON MONOKROM JADWAL SHOLAT ====================
+    const PRAYER_SVG_ICONS = {
+      Imsak: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>`,
+      Subuh: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6"/><path d="M12 2v2"/><path d="M7 8h10l1 9H6l1-9Z"/><path d="M5 17h14"/><path d="M9 21h6"/><path d="M12 17v4"/></svg>`,
+      Dzuhur: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+      Ashar: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1"/><path d="M12 20v1"/><path d="m5.6 5.6.7.7"/><path d="m17.7 17.7.7.7"/><path d="M3 12h1"/><path d="M20 12h1"/><path d="m5.6 18.4.7-.7"/><path d="m17.7 6.3.7-.7"/></svg>`,
+      Maghrib: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v2"/><path d="M6 16a6 6 0 0 1 12 0"/><path d="M4 16h16"/><path d="M3 20h18"/></svg>`,
+      Isya: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
+    };
+
+    // ==================== DATA PROVINSI INDONESIA ====================
+    const INDONESIA_PROVINCES = [
+      "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
+      "Jambi", "Sumatera Selatan", "Kepulauan Bangka Belitung", "Bengkulu", "Lampung",
+      "DKI Jakarta", "Jawa Barat", "Banten", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur",
+      "Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur",
+      "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
+      "Sulawesi Utara", "Gorontalo", "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara",
+      "Maluku", "Maluku Utara",
+      "Papua", "Papua Barat", "Papua Barat Daya", "Papua Tengah", "Papua Selatan", "Papua Pegunungan"
+    ];
+
+    let allIndonesiaCities = [];
+    let allSurahs = [];
+    let currentCategory = 'all';
+    let currentTajwidCategory = 'all';
+    let currentSurahData = null;
+    let arabicFontSize = 28;
+    let selectedQari = '05';
+    let selectedQariName = 'Mishary Rashid Alafasy';
+    let isSequentialReading = false;
+    let currentPlayingAyatIndex = -1;
+    let activeAudioMode = 'none';
+    let bookmarks = JSON.parse(localStorage.getItem('noor_bookmarks') || '[]');
+    let lastRead = JSON.parse(localStorage.getItem('noor_last_read') || '{"nomor":1,"namaLatin":"Al-Fatihah","ayat":1}');
+    let selectedCity = JSON.parse(localStorage.getItem('noor_city') || '{"id":"1301","lokasi":"KOTA JAKARTA"}');
+    let countdownInterval = null;
+    let tasbihCount = 0;
+
+    const audioEl = document.getElementById('quran-audio');
+    const adzanEl = document.getElementById('adzan-audio');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('noor_theme') || 'dark';
+      applyTheme(savedTheme);
+      updateLastReadUI();
+      updateBookmarkBadge();
+      fetchAllSurahs();
+      fetchPrayerTimes();
+      fetchAllIndonesiaCities();
+      renderDoaHarian();
+      renderTajwidList();
+      setupMediaSessionHandlers();
+    });
+
+    document.addEventListener('click', (e) => {
+      const qariWrap = document.getElementById('qari-custom-select');
+      if (qariWrap && !qariWrap.contains(e.target)) {
+        qariWrap.classList.remove('open');
+      }
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('noor_theme', theme);
+      const label = document.getElementById('theme-label');
+      const svg = document.getElementById('theme-svg');
+      if (theme === 'dark') {
+        label.textContent = 'Terang';
+        svg.innerHTML = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`;
+      } else {
+        label.textContent = 'Gelap';
+        svg.innerHTML = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      void target.offsetWidth;
+      target.classList.add('active');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      const navEl = document.getElementById(`nav-${tabName}`);
+      if (navEl) navEl.classList.add('active');
+      document.getElementById('main-header').classList.remove('hidden');
+      showView(`tab-${tabName}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openOfficialWhatsAppChannel() {
+      window.open(OFFICIAL_WA_CHANNEL_URL, '_blank', 'noopener,noreferrer');
+    }
+
+    function openTikTokProfile() {
+      window.open(OFFICIAL_TIKTOK_URL, '_blank', 'noopener,noreferrer');
+    }
+
+    // ==================== HALAMAN BELAJAR ILMU TAJWID ====================
+    function openTajwidPage() {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      const profNav = document.getElementById('nav-profile');
+      if (profNav) profNav.classList.add('active');
+      document.getElementById('main-header').classList.add('hidden');
+      filterTajwidCategory('all');
+      showView('view-tajwid');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeTajwidPage() {
+      document.getElementById('main-header').classList.remove('hidden');
+      showView('tab-profile');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterTajwidCategory(cat) {
+      currentTajwidCategory = cat;
+      document.querySelectorAll('#view-tajwid .chip').forEach(c => c.classList.remove('active'));
+      const chip = document.getElementById(`tajwid-cat-${cat}`);
+      if (chip) chip.classList.add('active');
+      renderTajwidList();
+    }
+
+    function renderTajwidList() {
+      const container = document.getElementById('tajwid-list');
+      if (!container) return;
+
+      const list = currentTajwidCategory === 'all'
+        ? TAJWID_LESSONS
+        : TAJWID_LESSONS.filter(item => item.cat === currentTajwidCategory);
+
+      container.innerHTML = list.map(item => `
+        <div class="card tajwid-card">
+          <div class="tajwid-top">
+            <div class="tajwid-title">${item.title}</div>
+            <span class="tajwid-cat-badge">${item.catLabel}</span>
+          </div>
+          <p class="tajwid-desc">${item.desc}</p>
+          <div class="tajwid-letters-box">
+            <div class="tajwid-letters-label">Huruf Tajwid</div>
+            <div class="tajwid-letters-val">${item.letters}</div>
+          </div>
+          <div class="tajwid-example-box">
+            <div class="tajwid-example-arab">${item.exampleArab}</div>
+            <div class="tajwid-example-note">${item.exampleNote}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== CUSTOM DROPDOWN QARI ====================
+    function toggleQariMenu(event) {
+      event.stopPropagation();
+      const wrap = document.getElementById('qari-custom-select');
+      wrap.classList.toggle('open');
+    }
+
+    function selectQariOption(code, name, btnEl) {
+      selectedQari = code;
+      selectedQariName = name;
+      document.getElementById('qari-selected-label').textContent = name;
+      document.getElementById('audio-status-text').textContent = `Siap diputar • Qari ${name}`;
+      document.querySelectorAll('#qari-options-menu .custom-option').forEach(opt => {
+        const isTarget = opt === btnEl;
+        opt.classList.toggle('active', isTarget);
+        const checkSpan = opt.querySelector('span:last-child');
+        if (checkSpan) checkSpan.textContent = isTarget ? '✓' : '';
+      });
+      document.getElementById('qari-custom-select').classList.remove('open');
+      stopAllAudio(false);
+    }
+
+    // ==================== 114 SURAH ====================
+    async function fetchAllSurahs() {
+      try {
+        const res = await fetch('https://equran.id/api/v2/surat');
+        const json = await res.json();
+        allSurahs = json.data;
+        document.getElementById('surah-loading').classList.add('hidden');
+        renderSurahList();
+      } catch (err) {
+        document.getElementById('surah-loading').innerHTML = `
+          <div style="color:#f87171;margin-bottom:8px;">Gagal memuat data. Cek koneksi internet.</div>
+          <button class="btn-gold" onclick="fetchAllSurahs()">Coba Lagi</button>
+        `;
+      }
+    }
+
+    function filterSurahCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('#tab-quran .chip').forEach(c => c.classList.remove('active'));
+      document.getElementById(`cat-${cat}`).classList.add('active');
+      renderSurahList();
+    }
+
+    function renderSurahList() {
+      const keyword = document.getElementById('search-surah').value.toLowerCase().trim();
+      const filtered = allSurahs.filter(s => {
+        const match = s.namaLatin.toLowerCase().includes(keyword) ||
+                      s.arti.toLowerCase().includes(keyword) ||
+                      String(s.nomor) === keyword;
+        if (!match) return false;
+        if (currentCategory === 'makkiyah') return s.tempatTurun.toLowerCase() === 'mekah';
+        if (currentCategory === 'madaniyah') return s.tempatTurun.toLowerCase() === 'madinah';
+        if (currentCategory === 'juz30') return s.nomor >= 78;
+        return true;
+      });
+
+      document.getElementById('surah-list').innerHTML = filtered.map(s => `
+        <div class="card surah-item" onclick="openSurahDetail(${s.nomor})">
+          <div class="surah-left">
+            <div class="surah-num">${s.nomor}</div>
+            <div>
+              <div class="surah-name">${s.namaLatin}</div>
+              <div class="surah-meta">${s.arti} • ${s.jumlahAyat} Ayat (${s.tempatTurun})</div>
+            </div>
+          </div>
+          <div class="surah-arabic">${s.nama}</div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== DETAIL SURAH ====================
+    async function openSurahDetail(nomor, scrollToAyat = 1) {
+      document.getElementById('main-header').classList.add('hidden');
+      showView('view-surah-detail');
+      document.getElementById('ayat-list').innerHTML = '';
+      document.getElementById('ayat-loading').classList.remove('hidden');
+
+      try {
+        const res = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
+        const json = await res.json();
+        currentSurahData = json.data;
+
+        document.getElementById('detail-surah-name').textContent = currentSurahData.namaLatin;
+        document.getElementById('detail-surah-meta').textContent = `${currentSurahData.arti} • ${currentSurahData.jumlahAyat} Ayat • ${currentSurahData.tempatTurun}`;
+
+        const qariName = getSelectedQariName();
+        if (activeAudioMode === 'quran' && currentPlayingAyatIndex >= 0 && currentSurahData.ayat[currentPlayingAyatIndex]) {
+          const activeAyat = currentSurahData.ayat[currentPlayingAyatIndex];
+          const totalAyat = currentSurahData.ayat.length;
+          document.getElementById('audio-status-text').textContent = isSequentialReading
+            ? `Ayat ${activeAyat.nomorAyat} dari ${totalAyat} • ${qariName}`
+            : `Memutar Ayat ${activeAyat.nomorAyat} • ${qariName}`;
+          document.getElementById('btn-play-full').textContent = (isSequentialReading && !audioEl.paused) ? '⏸' : '▶';
+        } else {
+          document.getElementById('audio-status-text').textContent = `Siap diputar • Qari ${qariName}`;
+          document.getElementById('btn-play-full').textContent = '▶';
+        }
+
+        const bismillah = document.getElementById('bismillah-banner');
+        bismillah.classList.toggle('hidden', nomor === 1 || nomor === 9);
+
+        document.getElementById('btn-prev-surah').disabled = nomor <= 1;
+        document.getElementById('btn-next-surah').disabled = nomor >= 114;
+
+        renderAyatList(currentSurahData);
+        document.getElementById('ayat-loading').classList.add('hidden');
+        saveLastRead(currentSurahData.nomor, currentSurahData.namaLatin, scrollToAyat);
+
+        if (scrollToAyat > 1) {
+          setTimeout(() => {
+            const el = document.getElementById(`ayat-card-${scrollToAyat}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (e) {
+        document.getElementById('ayat-loading').innerHTML = `<div style="color:#f87171;">Gagal memuat ayat.</div>`;
+      }
+    }
+
+    function renderAyatList(surah) {
+      const showLatin = document.getElementById('toggle-latin').checked;
+      const showTrans = document.getElementById('toggle-translation').checked;
+
+      document.getElementById('ayat-list').innerHTML = surah.ayat.map((a, idx) => {
+        const isBookmarked = bookmarks.some(b => b.surah === surah.nomor && b.ayat === a.nomorAyat);
+        const isCurrentPlaying = activeAudioMode === 'quran' && currentPlayingAyatIndex === idx;
+        return `
+          <div id="ayat-card-${a.nomorAyat}" class="card ayat-card ${isCurrentPlaying ? 'playing' : ''}">
+            <div class="ayat-header">
+              <span class="ayat-badge">${surah.nomor}:${a.nomorAyat}</span>
+              <div class="ayat-actions">
+                <button class="mini-btn" onclick="playSingleAyat(${idx}, false)" title="Putar Ayat">▶</button>
+                <button class="mini-btn" onclick="toggleBookmark(${surah.nomor}, '${surah.namaLatin}', ${a.nomorAyat})" style="color:${isBookmarked ? 'var(--gold)' : 'inherit'};">
+                  ${isBookmarked ? '★' : '☆'}
+                </button>
+                <button class="mini-btn" onclick="saveLastRead(${surah.nomor}, '${surah.namaLatin}', ${a.nomorAyat}, true)" title="Tandai Terakhir Dibaca">✓</button>
+              </div>
+            </div>
+            <div class="arabic-text" style="font-size:${arabicFontSize}px;">${a.teksArab}</div>
+            <div class="latin-text ${showLatin ? '' : 'hidden'}">${a.teksLatin}</div>
+            <div class="trans-text ${showTrans ? '' : 'hidden'}">"${a.teksIndonesia}"</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function closeSurahDetail() {
+      document.getElementById('main-header').classList.remove('hidden');
+      showView('tab-quran');
+    }
+
+    function navigateSurah(step) {
+      if (!currentSurahData) return;
+      const target = currentSurahData.nomor + step;
+      if (target >= 1 && target <= 114) openSurahDetail(target);
+    }
+
+    function changeFontSize(delta) {
+      arabicFontSize = Math.min(44, Math.max(20, arabicFontSize + delta));
+      document.querySelectorAll('.arabic-text').forEach(el => el.style.fontSize = `${arabicFontSize}px`);
+    }
+
+    function toggleReaderSettings() {
+      document.getElementById('reader-settings-panel').classList.toggle('open');
+    }
+
+    function applyReaderVisibility() {
+      const showLatin = document.getElementById('toggle-latin').checked;
+      const showTrans = document.getElementById('toggle-translation').checked;
+      document.querySelectorAll('.latin-text').forEach(el => el.classList.toggle('hidden', !showLatin));
+      document.querySelectorAll('.trans-text').forEach(el => el.classList.toggle('hidden', !showTrans));
+    }
+
+    function showSurahInfo() {
+      if (!currentSurahData) return;
+      document.getElementById('info-modal-title').textContent = `Surah ${currentSurahData.namaLatin}`;
+      document.getElementById('info-modal-body').innerHTML = currentSurahData.deskripsi;
+      document.getElementById('info-modal').classList.add('open');
+    }
+
+    // ==================== AUDIO BACAAN BERURUTAN PER AYAT ====================
+    function getSelectedQariName() {
+      return selectedQariName || 'Mishary Rashid Alafasy';
+    }
+
+    function updateMediaSessionMetadata(title, artist) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: title,
+          artist: artist,
+          album: "Noor Al-Qur'an Indonesia"
+        });
+        navigator.mediaSession.playbackState = 'playing';
+      }
+    }
+
+    function setupMediaSessionHandlers() {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (activeAudioMode === 'quran') audioEl.play();
+          else if (activeAudioMode === 'adzan') adzanEl.play();
+          navigator.mediaSession.playbackState = 'playing';
+          document.getElementById('mini-player-toggle').textContent = '⏸';
+          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '⏸';
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+          if (activeAudioMode === 'quran') audioEl.pause();
+          else if (activeAudioMode === 'adzan') adzanEl.pause();
+          navigator.mediaSession.playbackState = 'paused';
+          document.getElementById('mini-player-toggle').textContent = '▶';
+          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '▶';
+        });
+        navigator.mediaSession.setActionHandler('stop', () => {
+          stopAllAudio(true);
+        });
+      }
+    }
+
+    function showFloatingPlayer(title, subtitle) {
+      const bar = document.getElementById('mini-player-bar');
+      document.getElementById('mini-player-title').textContent = title;
+      document.getElementById('mini-player-sub').textContent = subtitle;
+      document.getElementById('mini-player-toggle').textContent = '⏸';
+      bar.classList.add('visible');
+    }
+
+    function hideFloatingPlayer() {
+      document.getElementById('mini-player-bar').classList.remove('visible');
+    }
+
+    function togglePlayPauseCurrent() {
+      if (activeAudioMode === 'quran') {
+        if (audioEl.paused) {
+          audioEl.play();
+          document.getElementById('mini-player-toggle').textContent = '⏸';
+          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '⏸';
+        } else {
+          audioEl.pause();
+          document.getElementById('mini-player-toggle').textContent = '▶';
+          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '▶';
+        }
+      } else if (activeAudioMode === 'adzan') {
+        if (adzanEl.paused) {
+          adzanEl.play();
+          document.getElementById('mini-player-toggle').textContent = '⏸';
+        } else {
+          adzanEl.pause();
+          document.getElementById('mini-player-toggle').textContent = '▶';
+        }
+      }
+    }
+
+    function togglePlayFullSurah() {
+      if (!currentSurahData || !Array.isArray(currentSurahData.ayat) || currentSurahData.ayat.length === 0) return;
+      if (isSequentialReading && !audioEl.paused) {
+        audioEl.pause();
+        document.getElementById('btn-play-full').textContent = '▶';
+        document.getElementById('mini-player-toggle').textContent = '▶';
+      } else if (isSequentialReading && audioEl.paused) {
+        audioEl.play();
+        document.getElementById('btn-play-full').textContent = '⏸';
+        document.getElementById('mini-player-toggle').textContent = '⏸';
+      } else {
+        stopAllAudio(false);
+        isSequentialReading = true;
+        playSingleAyat(0, true);
+      }
+    }
+
+    function playSingleAyat(index, autoAdvance = false) {
+      if (!currentSurahData || !currentSurahData.ayat[index]) return;
+      adzanEl.pause();
+      adzanEl.currentTime = 0;
+      isSequentialReading = autoAdvance;
+      currentPlayingAyatIndex = index;
+      activeAudioMode = 'quran';
+
+      const ayat = currentSurahData.ayat[index];
+      const totalAyat = currentSurahData.ayat.length;
+      const qariName = getSelectedQariName();
+      const statusText = autoAdvance
+        ? `Ayat ${ayat.nomorAyat} dari ${totalAyat} • ${qariName}`
+        : `Memutar Ayat ${ayat.nomorAyat} • ${qariName}`;
+
+      document.getElementById('audio-status-text').textContent = statusText;
+      document.getElementById('btn-play-full').textContent = autoAdvance ? '⏸' : '▶';
+
+      clearAyatHighlights();
+      const card = document.getElementById(`ayat-card-${ayat.nomorAyat}`);
+      if (card) {
+        card.classList.add('playing');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      audioEl.src = ayat.audio[selectedQari];
+      audioEl.play().catch(() => {});
+
+      showFloatingPlayer(`QS. ${currentSurahData.namaLatin} • Ayat ${ayat.nomorAyat}/${totalAyat}`, qariName);
+      updateMediaSessionMetadata(`${currentSurahData.namaLatin} - Ayat ${ayat.nomorAyat}`, qariName);
+    }
+
+    audioEl.addEventListener('ended', () => {
+      if (isSequentialReading && currentPlayingAyatIndex >= 0 && currentSurahData) {
+        const nextIdx = currentPlayingAyatIndex + 1;
+        if (nextIdx < currentSurahData.ayat.length) {
+          playSingleAyat(nextIdx, true);
+          return;
+        }
+      }
+      stopAllAudio(false);
+    });
+
+    adzanEl.addEventListener('ended', () => {
+      stopAllAudio(false);
+    });
+
+    function stopAllAudio(notify = false) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      adzanEl.pause();
+      adzanEl.currentTime = 0;
+      isSequentialReading = false;
+      currentPlayingAyatIndex = -1;
+      activeAudioMode = 'none';
+      clearAyatHighlights();
+      hideFloatingPlayer();
+
+      const btnFull = document.getElementById('btn-play-full');
+      if (btnFull) btnFull.textContent = '▶';
+      const statusEl = document.getElementById('audio-status-text');
+      if (statusEl) statusEl.textContent = `Siap diputar • Qari ${getSelectedQariName()}`;
+      const btnAdzan = document.getElementById('btn-test-adzan');
+      if (btnAdzan) btnAdzan.textContent = '▶ Tes Adzan';
+
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'none';
+      }
+      if (notify) showToast('Suara dimatikan');
+    }
+
+    function clearAyatHighlights() {
+      document.querySelectorAll('.ayat-card.playing').forEach(el => el.classList.remove('playing'));
+    }
+
+    // ==================== BOOKMARK & LAST READ ====================
+    function saveLastRead(nomor, namaLatin, ayat, notify = false) {
+      lastRead = { nomor, namaLatin, ayat };
+      localStorage.setItem('noor_last_read', JSON.stringify(lastRead));
+      updateLastReadUI();
+      if (notify) showToast(`Terakhir dibaca: ${namaLatin} Ayat ${ayat}`);
+    }
+
+    function updateLastReadUI() {
+      document.getElementById('last-read-title').textContent = lastRead.namaLatin;
+      document.getElementById('last-read-subtitle').textContent = `Ayat ${lastRead.ayat} • Lanjutkan tilawah`;
+    }
+
+    function continueLastRead() {
+      openSurahDetail(lastRead.nomor, lastRead.ayat);
+    }
+
+    function toggleBookmark(surah, namaLatin, ayat) {
+      const idx = bookmarks.findIndex(b => b.surah === surah && b.ayat === ayat);
+      if (idx > -1) {
+        bookmarks.splice(idx, 1);
+        showToast('Dihapus dari favorit');
+      } else {
+        bookmarks.push({ surah, namaLatin, ayat });
+        showToast('Disimpan ke favorit');
+      }
+      localStorage.setItem('noor_bookmarks', JSON.stringify(bookmarks));
+      updateBookmarkBadge();
+      if (currentSurahData) renderAyatList(currentSurahData);
+    }
+
+    function updateBookmarkBadge() {
+      const badge = document.getElementById('bookmark-badge');
+      badge.textContent = bookmarks.length;
+      badge.style.display = bookmarks.length > 0 ? 'flex' : 'none';
+    }
+
+    function openBookmarksModal() {
+      const list = document.getElementById('bookmarks-list');
+      if (bookmarks.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-secondary);font-size:13px;">Belum ada ayat tersimpan.</div>`;
+      } else {
+        list.innerHTML = bookmarks.map(b => `
+          <div class="card" style="padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="closeBookmarksModal(); openSurahDetail(${b.surah}, ${b.ayat})">
+            <div>
+              <div style="font-weight:700;color:var(--gold);font-size:13.5px;">${b.namaLatin}</div>
+              <div style="font-size:11.5px;color:var(--text-secondary);">Ayat ke-${b.ayat}</div>
+            </div>
+            <span style="color:var(--gold);">→</span>
+          </div>
+        `).join('');
+      }
+      document.getElementById('bookmarks-modal').classList.add('open');
+    }
+
+    function closeBookmarksModal() {
+      document.getElementById('bookmarks-modal').classList.remove('open');
+    }
+
+    // ==================== JADWAL SHOLAT & WILAYAH INDONESIA ====================
+    async function fetchAllIndonesiaCities() {
+      try {
+        const res = await fetch('https://api.myquran.com/v2/sholat/kota/semua');
+        const json = await res.json();
+        if (json.status && Array.isArray(json.data)) {
+          allIndonesiaCities = json.data;
+        }
+      } catch (e) {
+        allIndonesiaCities = [];
+      }
+    }
+
+    function mapCityToProvince(lokasiUpper) {
+      const l = lokasiUpper.toUpperCase();
+      if (l.includes('ACEH') || l.includes('BANDA ACEH') || l.includes('SABANG') || l.includes('LHOKSEUMAWE') || l.includes('LANGSA') || l.includes('MEULABOH') || l.includes('TAKENGON') || l.includes('SIGLI') || l.includes('BIREUEN') || l.includes('SIMEULUE') || l.includes('SINGKIL') || l.includes('BLANGPIDIE') || l.includes('KUTACANE') || l.includes('KARANG BARU') || l.includes('REDELONG') || l.includes('SUKA MAKMUE') || l.includes('JANTHO') || l.includes('CALANG') || l.includes('TAPAKTUAN')) return 'Aceh';
+      if (l.includes('MEDAN') || l.includes('DELI SERDANG') || l.includes('BINJAI') || l.includes('TEBING TINGGI') || l.includes('PEMATANGSIANTAR') || l.includes('TANJUNGBALAI') || l.includes('SIBOLGA') || l.includes('PADANGSIDIMPUAN') || l.includes('ASAHAN') || l.includes('BATUBARA') || l.includes('DAIRI') || l.includes('HUMBANG') || l.includes('KARO') || l.includes('LABUHANBATU') || l.includes('LANGKAT') || l.includes('MANDAILING') || l.includes('NIAS') || l.includes('PADANG LAWAS') || l.includes('PAKPAK') || l.includes('SAMOSIR') || l.includes('SERDANG') || l.includes('SIMALUNGUN') || l.includes('TOBA')) return 'Sumatera Utara';
+      if (l.includes('PADANG') || l.includes('BUKITTINGGI') || l.includes('PAYAKUMBUH') || l.includes('PARIAMAN') || l.includes('SAWAHLUNTO') || l.includes('SOLOK') || l.includes('AGAM') || l.includes('DHARMASRAYA') || l.includes('KEPULAUAN MENTAWAI') || l.includes('LIMA PULUH') || l.includes('PASAMAN') || l.includes('PESISIR SELATAN') || l.includes('SIJUNJUNG') || l.includes('TANAH DATAR')) return 'Sumatera Barat';
+      if (l.includes('PEKANBARU') || l.includes('DUMAI') || l.includes('BENGKALIS') || l.includes('INDRAGIRI') || l.includes('KAMPAR') || l.includes('KEPULAUAN MERANTI') || l.includes('KUANTAN') || l.includes('PELALAWAN') || l.includes('ROKAN') || l.includes('SIAK')) return 'Riau';
+      if (l.includes('BATAM') || l.includes('TANJUNGPINANG') || l.includes('BINTAN') || l.includes('KARIMUN') || l.includes('LINGGA') || l.includes('NATUNA') || l.includes('ANAMBAS')) return 'Kepulauan Riau';
+      if (l.includes('JAMBI') || l.includes('SUNGAIPENUH') || l.includes('BATANGHARI') || l.includes('BUNGO') || l.includes('KERINCI') || l.includes('MERANGIN') || l.includes('MUARO JAMBI') || l.includes('SAROLANGUN') || l.includes('TANJUNG JABUNG') || l.includes('TEBO')) return 'Jambi';
+      if (l.includes('PALEMBANG') || l.includes('LUBUKLINGGAU') || l.includes('PAGAR ALAM') || l.includes('PRABUMULIH') || l.includes('BANYUASIN') || l.includes('EMPAT LAWANG') || l.includes('LAHAT') || l.includes('MUARA ENIM') || l.includes('MUSI') || l.includes('OGAN') || l.includes('PENUKAL')) return 'Sumatera Selatan';
+      if (l.includes('PANGKALPINANG') || l.includes('BANGKA') || l.includes('BELITUNG')) return 'Kepulauan Bangka Belitung';
+      if (l.includes('BENGKULU') || l.includes('KAUR') || l.includes('KEPAHIANG') || l.includes('LEBONG') || l.includes('MUKOMUKO') || l.includes('REJANG LEBONG') || l.includes('SELUMA')) return 'Bengkulu';
+      if (l.includes('BANDAR LAMPUNG') || l.includes('METRO') || l.includes('LAMPUNG') || l.includes('MESUJI') || l.includes('PESAWARAN') || l.includes('PESISIR BARAT') || l.includes('PRINGSEWU') || l.includes('TANGGAMUS') || l.includes('TULANG BAWANG') || l.includes('WAY KANAN')) return 'Lampung';
+      if (l.includes('JAKARTA') || l.includes('KEPULAUAN SERIBU')) return 'DKI Jakarta';
+      if (l.includes('BANDUNG') || l.includes('BEKASI') || l.includes('BOGOR') || l.includes('CIREBON') || l.includes('DEPOK') || l.includes('SUKABUMI') || l.includes('TASIKMALAYA') || l.includes('BANJAR') || l.includes('CIMAHI') || l.includes('CIAMIS') || l.includes('CIANJUR') || l.includes('GARUT') || l.includes('INDRAMAYU') || l.includes('KARAWANG') || l.includes('KUNINGAN') || l.includes('MAJALENGKA') || l.includes('PANGANDARAN') || l.includes('PURWAKARTA') || l.includes('SUBANG') || l.includes('SUMEDANG')) return 'Jawa Barat';
+      if (l.includes('SERANG') || l.includes('TANGERANG') || l.includes('CILEGON') || l.includes('LEBAK') || l.includes('PANDEGLANG')) return 'Banten';
+      if (l.includes('SEMARANG') || l.includes('SURAKARTA') || l.includes('SOLO') || l.includes('MAGELANG') || l.includes('PEKALONGAN') || l.includes('SALATIGA') || l.includes('TEGAL') || l.includes('BANJARNEGARA') || l.includes('BANYUMAS') || l.includes('PURWOKERTO') || l.includes('BATANG') || l.includes('BLORA') || l.includes('BOYOLALI') || l.includes('BREBES') || l.includes('CILACAP') || l.includes('DEMAK') || l.includes('GROBOGAN') || l.includes('JEPARA') || l.includes('KARANGANYAR') || l.includes('KEBUMEN') || l.includes('KENDAL') || l.includes('KLATEN') || l.includes('KUDUS') || l.includes('PATI') || l.includes('PEMALANG') || l.includes('PURBALINGGA') || l.includes('PURWOREJO') || l.includes('REMBANG') || l.includes('SRAGEN') || l.includes('SUKOHARJO') || l.includes('TEMANGGUNG') || l.includes('WONOGIRI') || l.includes('WONOSOBO')) return 'Jawa Tengah';
+      if (l.includes('YOGYAKARTA') || l.includes('BANTUL') || l.includes('GUNUNGKIDUL') || l.includes('KULON PROGO') || l.includes('SLEMAN')) return 'DI Yogyakarta';
+      if (l.includes('SURABAYA') || l.includes('MALANG') || l.includes('KEDIRI') || l.includes('BLITAR') || l.includes('MADIUN') || l.includes('MOJOKERTO') || l.includes('PASURUAN') || l.includes('PROBOLINGGO') || l.includes('BATU') || l.includes('BANGKALAN') || l.includes('BANYUWANGI') || l.includes('BOJONEGORO') || l.includes('BONDOWOSO') || l.includes('GRESIK') || l.includes('JEMBER') || l.includes('JOMBANG') || l.includes('LAMONGAN') || l.includes('LUMAJANG') || l.includes('MAGETAN') || l.includes('NGANJUK') || l.includes('NGAWI') || l.includes('PACITAN') || l.includes('PAMEKASAN') || l.includes('PONOROGO') || l.includes('SAMPANG') || l.includes('SIDOARJO') || l.includes('SITUBONDO') || l.includes('SUMENEP') || l.includes('TRENGGALEK') || l.includes('TUBAN') || l.includes('TULUNGAGUNG')) return 'Jawa Timur';
+      if (l.includes('DENPASAR') || l.includes('BADUNG') || l.includes('BANGLI') || l.includes('BULELENG') || l.includes('GIANYAR') || l.includes('JEMBRANA') || l.includes('KARANGASEM') || l.includes('KLUNGKUNG') || l.includes('TABANAN')) return 'Bali';
+      if (l.includes('MATARAM') || l.includes('BIMA') || l.includes('DOMPU') || l.includes('LOMBOK') || l.includes('SUMBAWA')) return 'Nusa Tenggara Barat';
+      if (l.includes('KUPANG') || l.includes('ALOR') || l.includes('BELU') || l.includes('ENDE') || l.includes('FLORES TIMUR') || l.includes('LEMBATA') || l.includes('MALAKA') || l.includes('MANGGARAI') || l.includes('NGADA') || l.includes('NAGEKEO') || l.includes('ROTE NDAO') || l.includes('SABU RAIJUA') || l.includes('SIKKA') || l.includes('SUMBA') || l.includes('TIMOR TENGAH')) return 'Nusa Tenggara Timur';
+      if (l.includes('PONTIANAK') || l.includes('SINGKAWANG') || l.includes('BENGKAYANG') || l.includes('KAPUAS HULU') || l.includes('KAYONG UTARA') || l.includes('KETAPANG') || l.includes('KUBU RAYA') || l.includes('LANDAK') || l.includes('MELAWI') || l.includes('MEMPAWAH') || l.includes('SAMBAS') || l.includes('SANGGAU') || l.includes('SEKADAU') || l.includes('SINTANG')) return 'Kalimantan Barat';
+      if (l.includes('PALANGKA RAYA') || l.includes('BARITO') || l.includes('GUNUNG MAS') || l.includes('KAPUAS') || l.includes('KATINGAN') || l.includes('KOTAWARINGIN') || l.includes('LAMANDAU') || l.includes('MURUNG RAYA') || l.includes('PULANG PISAU') || l.includes('SERUYAN') || l.includes('SUKAMARA')) return 'Kalimantan Tengah';
+      if (l.includes('BANJARMASIN') || l.includes('BANJARBARU') || l.includes('BALANGAN') || l.includes('BANJAR') || l.includes('BARITO KUALA') || l.includes('HULU SUNGAI') || l.includes('KOTABARU') || l.includes('TABALONG') || l.includes('TANAH BUMBU') || l.includes('TANAH LAUT') || l.includes('TAPIN')) return 'Kalimantan Selatan';
+      if (l.includes('SAMARINDA') || l.includes('BALIKPAPAN') || l.includes('BONTANG') || l.includes('KUTAI') || l.includes('BERAU') || l.includes('PENAJAM PASER UTARA') || l.includes('PASER') || l.includes('MAHAKAM ULU')) return 'Kalimantan Timur';
+      if (l.includes('TARAKAN') || l.includes('BULUNGAN') || l.includes('MALINAU') || l.includes('NUNUKAN') || l.includes('TANA TIDUNG')) return 'Kalimantan Utara';
+      if (l.includes('MANADO') || l.includes('BITUNG') || l.includes('KOTAMOBAGU') || l.includes('TOMOHON') || l.includes('BOLAANG') || l.includes('KEPULAUAN SANGIHE') || l.includes('KEPULAUAN TALAUD') || l.includes('MINAHASA') || l.includes('SIAU TAGULANDANG')) return 'Sulawesi Utara';
+      if (l.includes('GORONTALO') || l.includes('BOALEMO') || l.includes('BONE BOLANGO') || l.includes('PAHUWATO')) return 'Gorontalo';
+      if (l.includes('PALU') || l.includes('BANGGAI') || l.includes('BUOL') || l.includes('DONGGALA') || l.includes('MOROWALI') || l.includes('PARIGI MOUTONG') || l.includes('POSO') || l.includes('SIGI') || l.includes('TOLI-TOLI') || l.includes('TOLI TOLI')) return 'Sulawesi Tengah';
+      if (l.includes('MAJENE') || l.includes('MAMASA') || l.includes('MAMUJU') || l.includes('PASANGKAYU') || l.includes('POLEWALI MANDAR')) return 'Sulawesi Barat';
+      if (l.includes('MAKASSAR') || l.includes('PALOPO') || l.includes('PAREPARE') || l.includes('BANTAENG') || l.includes('BARRU') || l.includes('BONE') || l.includes('BULUKUMBA') || l.includes('ENREKANG') || l.includes('GOWA') || l.includes('JENEPONTO') || l.includes('KEPULAUAN SELAYAR') || l.includes('LUWU') || l.includes('MAROS') || l.includes('PANGKAJENE') || l.includes('PINRANG') || l.includes('SIDENRENG RAPPANG') || l.includes('SINJAI') || l.includes('SOPPENG') || l.includes('TAKALAR') || l.includes('TANA TORAJA') || l.includes('TORAJA UTARA') || l.includes('WAJO')) return 'Sulawesi Selatan';
+      if (l.includes('KENDARI') || l.includes('BAUBAU') || l.includes('BOMBANA') || l.includes('BUTON') || l.includes('KOLAKA') || l.includes('KONAWE') || l.includes('MUNA') || l.includes('WAKATOBI')) return 'Sulawesi Tenggara';
+      if (l.includes('AMBON') || l.includes('TUAL') || l.includes('BURU') || l.includes('KEPULAUAN ARU') || l.includes('KEPULAUAN TANIMBAR') || l.includes('MALUKU') || l.includes('SERAM')) return 'Maluku';
+      if (l.includes('TERNATE') || l.includes('TIDORE') || l.includes('HALMAHERA') || l.includes('KEPULAUAN SULA') || l.includes('PULAU MOROTAI') || l.includes('PULAU TALIABU')) return 'Maluku Utara';
+      if (l.includes('JAYAPURA') || l.includes('BIAK NUMFOR') || l.includes('KEEROM') || l.includes('KEPULAUAN YAPEN') || l.includes('MAMBERAMO RAYA') || l.includes('SARMI') || l.includes('SUPIORI') || l.includes('WAROPEN')) return 'Papua';
+      if (l.includes('MANOKWARI') || l.includes('FAKFAK') || l.includes('KAIMANA') || l.includes('PEGUNUNGAN ARFAK') || l.includes('TELUK BINTUNI') || l.includes('TELUK WONDAMA')) return 'Papua Barat';
+      if (l.includes('SORONG') || l.includes('MAYBRAT') || l.includes('RAJA AMPAT') || l.includes('TAMBRAUW')) return 'Papua Barat Daya';
+      if (l.includes('NABIRE') || l.includes('DEIYAI') || l.includes('DOGIYAI') || l.includes('INTAN JAYA') || l.includes('MIMIKA') || l.includes('PANIAI') || l.includes('PUNCAK')) return 'Papua Tengah';
+      if (l.includes('MERAUKE') || l.includes('ASMAT') || l.includes('BOVEN DIGOEL') || l.includes('MAPPI')) return 'Papua Selatan';
+      if (l.includes('JAYAWIJAYA') || l.includes('LANNY JAYA') || l.includes('MAMBERAMO TENGAH') || l.includes('NDUGA') || l.includes('PEGUNUNGAN BINTANG') || l.includes('TOLIKARA') || l.includes('YAHUKIMO') || l.includes('YALIMO')) return 'Papua Pegunungan';
+      return 'Indonesia';
+    }
+
+    async function fetchPrayerTimes() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      document.getElementById('prayer-city-name').textContent = selectedCity.lokasi;
+
+      try {
+        const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/${selectedCity.id}/${yyyy}/${mm}/${dd}`);
+        const json = await res.json();
+        const j = json.data.jadwal;
+        document.getElementById('prayer-date-str').textContent = j.tanggal;
+
+        const items = [
+          { name: 'Imsak', time: j.imsak },
+          { name: 'Subuh', time: j.subuh },
+          { name: 'Dzuhur', time: j.dzuhur },
+          { name: 'Ashar', time: j.ashar },
+          { name: 'Maghrib', time: j.maghrib },
+          { name: 'Isya', time: j.isya },
+        ];
+
+        document.getElementById('prayer-times-grid').innerHTML = items.map(i => `
+          <div class="card prayer-card" id="pcard-${i.name}">
+            <div class="prayer-icon-box">${PRAYER_SVG_ICONS[i.name]}</div>
+            <div class="prayer-info-stack">
+              <div class="prayer-name">${i.name}</div>
+              <div class="prayer-time">${i.time}</div>
+            </div>
+          </div>
+        `).join('');
+
+        startPrayerCountdown(j);
+      } catch (e) {
+        document.getElementById('prayer-date-str').textContent = 'Gagal memuat jadwal sholat';
+      }
+    }
+
+    function startPrayerCountdown(j) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      const prayers = [
+        { name: 'Subuh', time: j.subuh },
+        { name: 'Dzuhur', time: j.dzuhur },
+        { name: 'Ashar', time: j.ashar },
+        { name: 'Maghrib', time: j.maghrib },
+        { name: 'Isya', time: j.isya },
+      ];
+
+      countdownInterval = setInterval(() => {
+        const now = new Date();
+        let next = null;
+        for (let p of prayers) {
+          const [h, m] = p.time.split(':').map(Number);
+          const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+          if (d > now) { next = { name: p.name, date: d }; break; }
+        }
+        if (!next) {
+          const [h, m] = prayers[0].time.split(':').map(Number);
+          next = { name: 'Subuh (Besok)', date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m, 0) };
+        }
+
+        document.querySelectorAll('.prayer-card').forEach(c => c.classList.remove('next-active'));
+        const activeCard = document.getElementById(`pcard-${next.name.replace(' (Besok)', '')}`);
+        if (activeCard) activeCard.classList.add('next-active');
+
+        const diff = next.date - now;
+        const hrs = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const mins = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const secs = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+
+        document.getElementById('next-prayer-name').textContent = next.name;
+        document.getElementById('prayer-countdown').textContent = `${hrs}:${mins}:${secs}`;
+
+        if (hrs === '00' && mins === '00' && secs === '00') {
+          if (document.getElementById('toggle-adzan').checked) {
+            playAdzanBackground(next.name);
+          }
+        }
+      }, 1000);
+    }
+
+    function openCitySelector() {
+      document.getElementById('city-modal').classList.add('open');
+      const input = document.getElementById('search-city-input');
+      input.value = '';
+      renderDefaultProvinces();
+      input.focus();
+    }
+
+    function closeCitySelector() {
+      document.getElementById('city-modal').classList.remove('open');
+    }
+
+    function renderDefaultProvinces() {
+      const container = document.getElementById('city-results');
+      container.innerHTML = `<div class="region-section-title">Pilih Provinsi di Indonesia</div>` + INDONESIA_PROVINCES.map(prov => `
+        <div class="card region-item" onclick="selectProvinceToShowCities('${prov.replace(/'/g, "\\'")}')">
+          <span>${prov}</span>
+          <span style="color:var(--gold);">Lihat Kota →</span>
+        </div>
+      `).join('');
+    }
+
+    function selectProvinceToShowCities(provinceName) {
+      document.getElementById('search-city-input').value = provinceName;
+      showCitiesInProvince(provinceName);
+    }
+
+    function showCitiesInProvince(provinceName) {
+      const container = document.getElementById('city-results');
+      if (allIndonesiaCities.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-secondary);">Memuat daftar wilayah Indonesia...</div>`;
+        return;
+      }
+
+      const citiesInProv = allIndonesiaCities.filter(c => mapCityToProvince(c.lokasi) === provinceName);
+      if (citiesInProv.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text-secondary);">Kota/kabupaten tidak ditemukan untuk ${provinceName}.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 6px;">
+          <span class="region-section-title" style="padding:0;">Kota/Kabupaten di ${provinceName} (${citiesInProv.length})</span>
+          <button class="mini-btn" onclick="renderDefaultProvinces()">Semua Provinsi</button>
+        </div>
+      ` + citiesInProv.map(c => `
+        <div class="card region-item" onclick="selectCity('${c.id}', '${c.lokasi.replace(/'/g, "\\'")}')">
+          <span>${c.lokasi}</span>
+          <span style="color:var(--gold);">Pilih</span>
+        </div>
+      `).join('');
+    }
+
+    async function handleRegionSearch() {
+      const q = document.getElementById('search-city-input').value.trim();
+      const qLower = q.toLowerCase();
+      const container = document.getElementById('city-results');
+
+      if (!q) {
+        renderDefaultProvinces();
+        return;
+      }
+
+      const matchedProvinces = INDONESIA_PROVINCES.filter(p => p.toLowerCase().includes(qLower));
+      if (matchedProvinces.length === 1 && matchedProvinces[0].toLowerCase() === qLower) {
+        showCitiesInProvince(matchedProvinces[0]);
+        return;
+      }
+
+      let html = '';
+      if (matchedProvinces.length > 0) {
+        html += `<div class="region-section-title">Provinsi Cocok</div>`;
+        html += matchedProvinces.map(prov => `
+          <div class="card region-item" onclick="selectProvinceToShowCities('${prov.replace(/'/g, "\\'")}')">
+            <span>Provinsi ${prov}</span>
+            <span style="color:var(--gold);">Buka Kota →</span>
+          </div>
+        `).join('');
+      }
+
+      const localCityMatches = allIndonesiaCities.filter(c =>
+        c.lokasi.toLowerCase().includes(qLower) ||
+        mapCityToProvince(c.lokasi).toLowerCase().includes(qLower)
+      );
+
+      if (localCityMatches.length > 0) {
+        html += `<div class="region-section-title">Kota / Kabupaten (${localCityMatches.length})</div>`;
+        html += localCityMatches.slice(0, 40).map(c => {
+          const provLabel = mapCityToProvince(c.lokasi);
+          return `
+            <div class="card region-item" onclick="selectCity('${c.id}', '${c.lokasi.replace(/'/g, "\\'")}')">
+              <div>
+                <div>${c.lokasi}</div>
+                <div style="font-size:10.5px;color:var(--text-secondary);">${provLabel}</div>
+              </div>
+              <span style="color:var(--gold);">Pilih</span>
+            </div>
+          `;
+        }).join('');
+      } else if (matchedProvinces.length === 0 && q.length >= 3) {
+        try {
+          const res = await fetch(`https://api.myquran.com/v2/sholat/kota/cari/${encodeURIComponent(q)}`);
+          const json = await res.json();
+          if (json.status && json.data && json.data.length > 0) {
+            html += `<div class="region-section-title">Hasil Pencarian Wilayah</div>`;
+            html += json.data.map(c => `
+              <div class="card region-item" onclick="selectCity('${c.id}', '${c.lokasi.replace(/'/g, "\\'")}')">
+                <span>${c.lokasi}</span>
+                <span style="color:var(--gold);">Pilih</span>
+              </div>
+            `).join('');
+          }
+        } catch (e) {}
+      }
+
+      if (!html) {
+        html = `<div style="text-align:center;padding:18px;font-size:12px;color:var(--text-secondary);">Wilayah Indonesia tidak ditemukan.</div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function selectCity(id, lokasi) {
+      selectedCity = { id, lokasi };
+      localStorage.setItem('noor_city', JSON.stringify(selectedCity));
+      closeCitySelector();
+      fetchPrayerTimes();
+      showToast(`Lokasi diatur ke ${lokasi}`);
+    }
+
+    function requestNotificationPermission() {
+      if ("Notification" in window) {
+        Notification.requestPermission().then(p => {
+          if (p === "granted") showToast("Notifikasi sholat aktif!");
+        });
+      }
+    }
+
+    function playAdzanBackground(prayerName = 'Sholat') {
+      stopAllAudio(false);
+      activeAudioMode = 'adzan';
+      adzanEl.play();
+      document.getElementById('btn-test-adzan').textContent = '⏹ Stop Adzan';
+      showFloatingPlayer(`Adzan Waktu ${prayerName}`, selectedCity.lokasi);
+      updateMediaSessionMetadata(`Adzan Waktu ${prayerName}`, selectedCity.lokasi);
+    }
+
+    function testAdzanSound() {
+      if (!adzanEl.paused) {
+        stopAllAudio(true);
+      } else {
+        playAdzanBackground('Pengingat Sholat');
+      }
+    }
+
+    // ==================== TASBIH & DOA ====================
+    function incrementTasbih() {
+      const target = Number(document.getElementById('dzikir-preset').value);
+      tasbihCount++;
+      document.getElementById('tasbih-count').textContent = tasbihCount;
+      if (navigator.vibrate) navigator.vibrate(25);
+      if (tasbihCount === target) {
+        showToast(`Alhamdulillah, target ${target}x tercapai!`);
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      }
+    }
+
+    function resetTasbih() {
+      tasbihCount = 0;
+      const target = document.getElementById('dzikir-preset').value;
+      document.getElementById('tasbih-count').textContent = 0;
+      document.getElementById('tasbih-target').textContent = `Target: ${target}`;
+    }
+
+    function renderDoaHarian() {
+      const doas = [
+        {
+          title: "Doa Sebelum Membaca Al-Qur'an",
+          arab: "اَللّٰهُمَّ افْتَحْ عَلَيْنَا حِكْمَتَكَ وَانْشُرْ عَلَيْنَا مِنْ خَزَائِنِ رَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِيْنَ",
+          latin: "Allahummaftah 'alaina hikmataka wansyur 'alaina min khozaa-ini rohmatika yaa arhamar-roohimiin.",
+          arti: "Ya Allah, bukakanlah kepada kami hikmah-Mu dan bentangkanlah kepada kami dari khazanah rahmat-Mu, wahai Tuhan Yang Maha Pengasih."
+        },
+        {
+          title: "Doa Kebaikan Dunia & Akhirat",
+          arab: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+          latin: "Rabbanaa aatinaa fid-dunyaa hasanatan wa fil-aakhirati hasanatan wa qinaa 'adzaaban-naar.",
+          arti: "Ya Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, serta peliharalah kami dari siksa neraka."
+        },
+        {
+          title: "Doa Kedua Orang Tua",
+          arab: "رَبِّ اغْفِرْ لِيْ وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِيْ صَغِيْرًا",
+          latin: "Rabbighfir lii wa liwaalidayya warhamhumaa kamaa rabbayaanii shaghiiraa.",
+          arti: "Ya Tuhanku, ampunilah dosaku dan dosa kedua orang tuaku, serta kasihanilah mereka sebagaimana mereka mendidikku sewaktu kecil."
+        }
+      ];
+
+      document.getElementById('doa-list').innerHTML = doas.map(d => `
+        <div class="card doa-card">
+          <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;">${d.title}</div>
+          <div class="arabic-text" style="font-size:23px;margin-bottom:8px;">${d.arab}</div>
+          <div class="latin-text" style="font-size:11.5px;">${d.latin}</div>
+          <div class="trans-text" style="font-size:12px;">"${d.arti}"</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
