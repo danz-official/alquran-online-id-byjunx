@@ -509,6 +509,11 @@
       font-family: 'Amiri', serif;
       font-size: 30px;
       color: var(--gold);
+      transition: transform 0.25s ease, text-shadow 0.25s ease;
+    }
+    .bismillah-box.playing {
+      transform: scale(1.03);
+      text-shadow: 0 0 18px rgba(223, 182, 61, 0.55);
     }
 
     .ayat-list { position: relative; z-index: 5; display: flex; flex-direction: column; gap: 14px; }
@@ -1078,7 +1083,7 @@
         <div class="profile-top">
           <div class="profile-avatar">JX</div>
           <div>
-            <div class="greeting" style="margin-bottom:2px;">Developer Aplikasi</div>
+            <div class="greeting" style="margin-bottom:2px;">Developer</div>
             <h2 style="font-size:19px;font-weight:800;">
               JunX <span class="dev-badge">DEV</span>
             </h2>
@@ -1315,6 +1320,7 @@
 
     let allIndonesiaCities = [];
     let allSurahs = [];
+    let bismillahAudioCache = {};
     let currentCategory = 'all';
     let currentTajwidCategory = 'all';
     let currentSurahData = null;
@@ -1322,6 +1328,9 @@
     let selectedQari = '05';
     let selectedQariName = 'Mishary Rashid Alafasy';
     let isSequentialReading = false;
+    let isPlayingBismillahPrefix = false;
+    let pendingAyatIndexAfterBismillah = -1;
+    let pendingAutoAdvanceAfterBismillah = false;
     let currentPlayingAyatIndex = -1;
     let activeAudioMode = 'none';
     let bookmarks = JSON.parse(localStorage.getItem('noor_bookmarks') || '[]');
@@ -1339,6 +1348,7 @@
       updateLastReadUI();
       updateBookmarkBadge();
       fetchAllSurahs();
+      preloadBismillahAudio();
       fetchPrayerTimes();
       fetchAllIndonesiaCities();
       renderDoaHarian();
@@ -1493,6 +1503,16 @@
       }
     }
 
+    async function preloadBismillahAudio() {
+      try {
+        const res = await fetch('https://equran.id/api/v2/surat/1');
+        const json = await res.json();
+        if (json?.data?.ayat?.[0]?.audio) {
+          bismillahAudioCache = json.data.ayat[0].audio;
+        }
+      } catch (e) {}
+    }
+
     function filterSurahCategory(cat) {
       currentCategory = cat;
       document.querySelectorAll('#tab-quran .chip').forEach(c => c.classList.remove('active'));
@@ -1539,11 +1559,18 @@
         const json = await res.json();
         currentSurahData = json.data;
 
+        if (nomor === 1 && currentSurahData.ayat?.[0]?.audio) {
+          bismillahAudioCache = currentSurahData.ayat[0].audio;
+        }
+
         document.getElementById('detail-surah-name').textContent = currentSurahData.namaLatin;
         document.getElementById('detail-surah-meta').textContent = `${currentSurahData.arti} • ${currentSurahData.jumlahAyat} Ayat • ${currentSurahData.tempatTurun}`;
 
         const qariName = getSelectedQariName();
-        if (activeAudioMode === 'quran' && currentPlayingAyatIndex >= 0 && currentSurahData.ayat[currentPlayingAyatIndex]) {
+        if (activeAudioMode === 'quran' && isPlayingBismillahPrefix) {
+          document.getElementById('audio-status-text').textContent = `Bismillahirrahmanirrahim • ${qariName}`;
+          document.getElementById('btn-play-full').textContent = !audioEl.paused ? '⏸' : '▶';
+        } else if (activeAudioMode === 'quran' && currentPlayingAyatIndex >= 0 && currentSurahData.ayat[currentPlayingAyatIndex]) {
           const activeAyat = currentSurahData.ayat[currentPlayingAyatIndex];
           const totalAyat = currentSurahData.ayat.length;
           document.getElementById('audio-status-text').textContent = isSequentialReading
@@ -1557,6 +1584,7 @@
 
         const bismillah = document.getElementById('bismillah-banner');
         bismillah.classList.toggle('hidden', nomor === 1 || nomor === 9);
+        bismillah.classList.toggle('playing', isPlayingBismillahPrefix);
 
         document.getElementById('btn-prev-surah').disabled = nomor <= 1;
         document.getElementById('btn-next-surah').disabled = nomor >= 114;
@@ -1644,6 +1672,25 @@
       return selectedQariName || 'Mishary Rashid Alafasy';
     }
 
+    function getBismillahAudioUrl() {
+      if (bismillahAudioCache && bismillahAudioCache[selectedQari]) {
+        return bismillahAudioCache[selectedQari];
+      }
+      const qariFolderMap = {
+        '01': 'Abdullah-Al-Juhany',
+        '02': 'Abdul-Muhsin-Al-Qasim',
+        '03': 'Abdurrahman-As-Sudais',
+        '04': 'Ibrahim-Al-Dossari',
+        '05': 'Misyari-Rasyid-Al-Afasy'
+      };
+      const folder = qariFolderMap[selectedQari] || 'Misyari-Rasyid-Al-Afasy';
+      return `https://equran.id/audio-partial/${folder}/001001.mp3`;
+    }
+
+    function shouldPlayBismillahBeforeAyat(surahNumber, ayatIndex) {
+      return ayatIndex === 0 && surahNumber !== 1 && surahNumber !== 9;
+    }
+
     function updateMediaSessionMetadata(title, artist) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -1662,14 +1709,18 @@
           else if (activeAudioMode === 'adzan') adzanEl.play();
           navigator.mediaSession.playbackState = 'playing';
           document.getElementById('mini-player-toggle').textContent = '⏸';
-          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '⏸';
+          if (isSequentialReading || isPlayingBismillahPrefix) {
+            document.getElementById('btn-play-full').textContent = '⏸';
+          }
         });
         navigator.mediaSession.setActionHandler('pause', () => {
           if (activeAudioMode === 'quran') audioEl.pause();
           else if (activeAudioMode === 'adzan') adzanEl.pause();
           navigator.mediaSession.playbackState = 'paused';
           document.getElementById('mini-player-toggle').textContent = '▶';
-          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '▶';
+          if (isSequentialReading || isPlayingBismillahPrefix) {
+            document.getElementById('btn-play-full').textContent = '▶';
+          }
         });
         navigator.mediaSession.setActionHandler('stop', () => {
           stopAllAudio(true);
@@ -1694,11 +1745,15 @@
         if (audioEl.paused) {
           audioEl.play();
           document.getElementById('mini-player-toggle').textContent = '⏸';
-          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '⏸';
+          if (isSequentialReading || isPlayingBismillahPrefix) {
+            document.getElementById('btn-play-full').textContent = '⏸';
+          }
         } else {
           audioEl.pause();
           document.getElementById('mini-player-toggle').textContent = '▶';
-          if (isSequentialReading) document.getElementById('btn-play-full').textContent = '▶';
+          if (isSequentialReading || isPlayingBismillahPrefix) {
+            document.getElementById('btn-play-full').textContent = '▶';
+          }
         }
       } else if (activeAudioMode === 'adzan') {
         if (adzanEl.paused) {
@@ -1713,32 +1768,64 @@
 
     function togglePlayFullSurah() {
       if (!currentSurahData || !Array.isArray(currentSurahData.ayat) || currentSurahData.ayat.length === 0) return;
-      if (isSequentialReading && !audioEl.paused) {
+      if ((isSequentialReading || isPlayingBismillahPrefix) && !audioEl.paused) {
         audioEl.pause();
         document.getElementById('btn-play-full').textContent = '▶';
         document.getElementById('mini-player-toggle').textContent = '▶';
-      } else if (isSequentialReading && audioEl.paused) {
+      } else if ((isSequentialReading || isPlayingBismillahPrefix) && audioEl.paused) {
         audioEl.play();
         document.getElementById('btn-play-full').textContent = '⏸';
         document.getElementById('mini-player-toggle').textContent = '⏸';
       } else {
         stopAllAudio(false);
-        isSequentialReading = true;
         playSingleAyat(0, true);
       }
     }
 
-    function playSingleAyat(index, autoAdvance = false) {
+    function playSingleAyat(index, autoAdvance = false, skipBismillah = false) {
       if (!currentSurahData || !currentSurahData.ayat[index]) return;
       adzanEl.pause();
       adzanEl.currentTime = 0;
+
+      const qariName = getSelectedQariName();
+      const totalAyat = currentSurahData.ayat.length;
+
+      if (!skipBismillah && shouldPlayBismillahBeforeAyat(currentSurahData.nomor, index)) {
+        isPlayingBismillahPrefix = true;
+        isSequentialReading = autoAdvance;
+        pendingAyatIndexAfterBismillah = index;
+        pendingAutoAdvanceAfterBismillah = autoAdvance;
+        currentPlayingAyatIndex = -1;
+        activeAudioMode = 'quran';
+
+        clearAyatHighlights();
+        const bismillahEl = document.getElementById('bismillah-banner');
+        if (bismillahEl) {
+          bismillahEl.classList.add('playing');
+          bismillahEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        document.getElementById('audio-status-text').textContent = `Bismillahirrahmanirrahim • ${qariName}`;
+        document.getElementById('btn-play-full').textContent = '⏸';
+
+        audioEl.src = getBismillahAudioUrl();
+        audioEl.play().catch(() => {
+          isPlayingBismillahPrefix = false;
+          playSingleAyat(index, autoAdvance, true);
+        });
+
+        showFloatingPlayer(`QS. ${currentSurahData.namaLatin} • Bismillah`, qariName);
+        updateMediaSessionMetadata(`Bismillah - ${currentSurahData.namaLatin}`, qariName);
+        return;
+      }
+
+      isPlayingBismillahPrefix = false;
+      pendingAyatIndexAfterBismillah = -1;
       isSequentialReading = autoAdvance;
       currentPlayingAyatIndex = index;
       activeAudioMode = 'quran';
 
       const ayat = currentSurahData.ayat[index];
-      const totalAyat = currentSurahData.ayat.length;
-      const qariName = getSelectedQariName();
       const statusText = autoAdvance
         ? `Ayat ${ayat.nomorAyat} dari ${totalAyat} • ${qariName}`
         : `Memutar Ayat ${ayat.nomorAyat} • ${qariName}`;
@@ -1761,10 +1848,19 @@
     }
 
     audioEl.addEventListener('ended', () => {
+      if (isPlayingBismillahPrefix && pendingAyatIndexAfterBismillah >= 0) {
+        const targetIdx = pendingAyatIndexAfterBismillah;
+        const targetAuto = pendingAutoAdvanceAfterBismillah;
+        isPlayingBismillahPrefix = false;
+        pendingAyatIndexAfterBismillah = -1;
+        playSingleAyat(targetIdx, targetAuto, true);
+        return;
+      }
+
       if (isSequentialReading && currentPlayingAyatIndex >= 0 && currentSurahData) {
         const nextIdx = currentPlayingAyatIndex + 1;
         if (nextIdx < currentSurahData.ayat.length) {
-          playSingleAyat(nextIdx, true);
+          playSingleAyat(nextIdx, true, true);
           return;
         }
       }
@@ -1780,6 +1876,9 @@
       audioEl.currentTime = 0;
       adzanEl.pause();
       adzanEl.currentTime = 0;
+      isPlayingBismillahPrefix = false;
+      pendingAyatIndexAfterBismillah = -1;
+      pendingAutoAdvanceAfterBismillah = false;
       isSequentialReading = false;
       currentPlayingAyatIndex = -1;
       activeAudioMode = 'none';
@@ -1800,6 +1899,8 @@
     }
 
     function clearAyatHighlights() {
+      const bismillahEl = document.getElementById('bismillah-banner');
+      if (bismillahEl) bismillahEl.classList.remove('playing');
       document.querySelectorAll('.ayat-card.playing').forEach(el => el.classList.remove('playing'));
     }
 
